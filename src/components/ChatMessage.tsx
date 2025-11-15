@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
-import { Bot, User } from "lucide-react";
+import robotImage from "@/assets/robot.png";
+import userImage from "@/assets/user.png";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -12,8 +13,8 @@ export const ChatMessage = ({ role, content }: ChatMessageProps) => {
   return (
     <div className={cn("flex gap-3 mb-4 animate-slide-up", isUser ? "justify-end" : "justify-start")}>
       {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 glow-effect">
-          <Bot className="w-5 h-5 text-primary" />
+        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+          <img src={robotImage} alt="MindPulse" className="w-full h-full object-cover" />
         </div>
       )}
       <div
@@ -27,8 +28,8 @@ export const ChatMessage = ({ role, content }: ChatMessageProps) => {
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
       </div>
       {isUser && (
-        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-          <User className="w-5 h-5 text-primary-foreground" />
+        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+          <img src={userImage} alt="User" className="w-full h-full object-cover" />
         </div>
       )}
     </div>
