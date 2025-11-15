@@ -1,4 +1,4 @@
-import { MessageSquare, TrendingUp, Settings, LogOut, Users } from "lucide-react";
+import { MessageSquare, TrendingUp, Settings, LogOut, Users, Phone, ClipboardList } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Brain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +55,24 @@ export const AppSidebar = () => {
         >
           <TrendingUp className="w-5 h-5" />
           <span>Quick Stats</span>
+        </NavLink>
+
+        <NavLink
+          to="/weekly-survey"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-primary/10 transition-colors"
+          activeClassName="bg-primary/20 font-medium"
+        >
+          <ClipboardList className="w-5 h-5" />
+          <span>Take weekly survey</span>
+        </NavLink>
+
+        <NavLink
+          to="/coach"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-primary/10 transition-colors"
+          activeClassName="bg-primary/20 font-medium"
+        >
+          <Phone className="w-5 h-5" />
+          <span>Call my coach</span>
         </NavLink>
 
         <NavLink
