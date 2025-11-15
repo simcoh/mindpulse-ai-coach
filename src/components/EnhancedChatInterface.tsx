@@ -193,7 +193,26 @@ export const EnhancedChatInterface = ({ userId }: EnhancedChatInterfaceProps) =>
     const weekStartStr = weekStart.toISOString().split("T")[0];
 
     // Calculate moodmeter score (0-100)
-    const score = Math.floor(Math.random() * 40) + 60; // Demo: 60-100
+    // Get recent moods for calculation
+    const { data: recentMoodsData } = await supabase
+      .from("check_ins")
+      .select("mood, date")
+      .eq("user_id", userId)
+      .eq("type", "emoji")
+      .order("date", { ascending: false })
+      .limit(7);
+
+    const { count: streakCount } = await supabase
+      .from("check_ins")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId);
+
+    const { calculateMoodmeterScore } = await import("@/lib/moodmeter");
+    const score = calculateMoodmeterScore({
+      weeklySurvey: responses,
+      recentMoods: (recentMoodsData || []).map(m => ({ mood: m.mood || "neutral", date: m.date })),
+      checkInStreak: streakCount || 0,
+    });
 
     // Generate AI summary
     setIsLoading(true);

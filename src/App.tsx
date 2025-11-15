@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminChat from "./pages/AdminChat";
 import WeeklySurveyPage from "./pages/WeeklySurveyPage";
 import Coach from "./pages/Coach";
+import Goals from "./pages/Goals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/stats" element={<Stats />} />
           <Route path="/weekly-survey" element={<WeeklySurveyPage />} />
           <Route path="/coach" element={<Coach />} />
+          <Route path="/goals" element={<Goals />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/chat" element={<AdminChat />} />

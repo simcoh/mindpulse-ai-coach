@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { EnhancedChatInterface } from "@/components/EnhancedChatInterface";
 import { AppSidebar } from "@/components/AppSidebar";
+import { NudgesList } from "@/components/NudgesList";
 
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
@@ -33,8 +34,13 @@ const Dashboard = () => {
   return (
     <div className="flex min-h-screen bg-background w-full">
       <AppSidebar />
-      <main className="flex-1">
-        <EnhancedChatInterface userId={user.id} />
+      <main className="flex-1 flex flex-col">
+        <div className="p-4 border-b border-border">
+          <NudgesList userId={user.id} limit={3} />
+        </div>
+        <div className="flex-1">
+          <EnhancedChatInterface userId={user.id} />
+        </div>
       </main>
     </div>
   );

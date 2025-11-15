@@ -100,20 +100,33 @@ const AdminChat = () => {
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !user) return;
 
     const userMessage = { role: "user" as const, content: input };
     setMessages((prev) => [...prev, userMessage]);
+    const messageText = input;
     setInput("");
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-coach", {
+        body: { message: messageText },
+      });
+
+      if (error) throw error;
+
       const assistantMessage = {
         role: "assistant" as const,
-        content: "Thank you for the feedback. Is there anything specific you'd like to discuss about team management or any concerns?",
+        content: data.response,
       };
       setMessages((prev) => [...prev, assistantMessage]);
-    }, 1000);
+    } catch (error) {
+      console.error("Error:", error);
+      const errorMessage = {
+        role: "assistant" as const,
+        content: "I'm sorry, I encountered an error. Please try again or check your connection.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    }
   };
 
   if (!user) return null;
