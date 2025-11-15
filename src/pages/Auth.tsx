@@ -13,6 +13,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [selectedPanel, setSelectedPanel] = useState<"employee" | "admin" | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -26,11 +27,21 @@ const Auth = () => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!selectedPanel) {
+      toast({
+        title: "Panel Selection Required",
+        description: "Please select whether you want to access the Teammate Panel or Admin Panel.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -38,18 +49,42 @@ const Auth = () => {
           },
         });
         if (error) throw error;
+        
+        // Insert the selected role for the new user
+        if (data.user) {
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: data.user.id,
+              role: selectedPanel
+            });
+          
+          if (roleError) {
+            console.error('Error setting user role:', roleError);
+          }
+        }
+        
         toast({
           title: "Success!",
           description: "Account created. You can now sign in.",
         });
         setIsSignUp(false);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
-        navigate("/");
+        
+        // Fetch user role to determine redirect
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id)
+          .single();
+        
+        const redirectPath = roleData?.role === 'admin' ? '/admin/chat' : '/';
+        navigate(redirectPath);
       }
     } catch (error: any) {
       toast({
@@ -82,6 +117,34 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Select Panel *</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant={selectedPanel === "employee" ? "default" : "outline"}
+                  onClick={() => setSelectedPanel("employee")}
+                  className="h-20"
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">Teammate Panel</div>
+                    <div className="text-xs mt-1 opacity-80">Access your personal dashboard</div>
+                  </div>
+                </Button>
+                <Button
+                  type="button"
+                  variant={selectedPanel === "admin" ? "default" : "outline"}
+                  onClick={() => setSelectedPanel("admin")}
+                  className="h-20"
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">Admin Panel</div>
+                    <div className="text-xs mt-1 opacity-80">Manage your team</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
