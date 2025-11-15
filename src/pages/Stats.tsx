@@ -10,6 +10,7 @@ const Stats = () => {
   const [user, setUser] = useState<any>(null);
   const [moodData, setMoodData] = useState<any[]>([]);
   const [checkInStreak, setCheckInStreak] = useState(0);
+  const [weeklySurveyCompleted, setWeeklySurveyCompleted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,6 +19,7 @@ const Stats = () => {
         setUser(session.user);
         loadMoodData(session.user.id);
         loadCheckInStreak(session.user.id);
+        checkWeeklySurvey(session.user.id);
       } else {
         navigate("/auth");
       }
@@ -70,6 +72,22 @@ const Stats = () => {
     setCheckInStreak(count || 0);
   };
 
+  const checkWeeklySurvey = async (userId: string) => {
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+
+    const { data } = await supabase
+      .from("weekly_surveys")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("week_start", weekStartStr)
+      .single();
+
+    setWeeklySurveyCompleted(!!data);
+  };
+
   if (!user) return null;
 
   return (
@@ -91,6 +109,25 @@ const Stats = () => {
               <CardContent>
                 <div className="text-4xl font-bold text-primary">{checkInStreak}</div>
                 <p className="text-sm text-muted-foreground mt-2">Total check-ins</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Weekly Survey
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {weeklySurveyCompleted ? (
+                  <div className="flex items-center gap-2">
+                    <div className="text-4xl">✓</div>
+                    <p className="text-sm text-muted-foreground">Completed</p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">Not completed this week</div>
+                )}
               </CardContent>
             </Card>
 

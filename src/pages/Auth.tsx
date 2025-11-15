@@ -63,19 +63,21 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md bg-card border-border glow-effect">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center glow-strong">
-              <Brain className="w-8 h-8 text-primary" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-card border-border shadow-lg">
+        <CardHeader className="space-y-1 text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Brain className="w-7 h-7 text-primary" />
             </div>
+            <h1 className="text-3xl font-bold text-primary">
+              MindPulse
+            </h1>
           </div>
-          <CardTitle className="text-3xl font-bold gradient-primary bg-clip-text text-transparent">
-            MindPulse
-          </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Your private AI coach for wellbeing and growth
+            {isSignUp
+              ? "Create your account to start your wellbeing journey"
+              : "Welcome back to your personal AI coach"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -104,7 +106,7 @@ const Auth = () => {
                 className="bg-muted border-border"
               />
             </div>
-            <Button type="submit" className="w-full glow-effect" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
