@@ -67,10 +67,10 @@ const Auth = () => {
       <Card className="w-full max-w-md bg-card border-border shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Brain className="w-7 h-7 text-primary" />
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+              <Brain className="w-7 h-7 text-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-primary">
+            <h1 className="text-3xl font-bold text-foreground">
               MindPulse
             </h1>
           </div>
