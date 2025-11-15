@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 interface AdminWeeklySurveyProps {
   onSubmit: (responses: {
     team_status: string;
-    conflicts: string;
-    concerns: string;
-    workload: string;
-    support_needed: string;
+    survey_feedback: string;
+    behavior_concerns: string;
+    problem_report: string;
+    help_needed: string;
   }) => void;
   onCancel?: () => void;
 }
@@ -17,18 +17,18 @@ interface AdminWeeklySurveyProps {
 export const AdminWeeklySurvey = ({ onSubmit, onCancel }: AdminWeeklySurveyProps) => {
   const [responses, setResponses] = useState({
     team_status: "",
-    conflicts: "",
-    concerns: "",
-    workload: "",
-    support_needed: "",
+    survey_feedback: "",
+    behavior_concerns: "",
+    problem_report: "",
+    help_needed: "",
   });
 
   const questions = [
-    { key: "team_status", label: "How is your team doing overall this week?" },
-    { key: "conflicts", label: "Did any conflicts or issues arise?" },
-    { key: "concerns", label: "Are you concerned about any teammate's behavior or wellbeing?" },
-    { key: "workload", label: "How is the workload distribution in your team?" },
-    { key: "support_needed", label: "Do you need support managing a difficult situation?" },
+    { key: "team_status", label: "How is your team doing this week?" },
+    { key: "survey_feedback", label: "Did they like the new survey?" },
+    { key: "behavior_concerns", label: "Are you concerned about anyone's behavior?" },
+    { key: "problem_report", label: "Do you want to report a problem?" },
+    { key: "help_needed", label: "Do you need help managing a tough situation?" },
   ];
 
   const handleSubmit = () => {
