@@ -51,6 +51,10 @@ export default {
           user: "hsl(var(--chat-user))",
           assistant: "hsl(var(--chat-assistant))",
         },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
