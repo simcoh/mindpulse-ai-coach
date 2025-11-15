@@ -206,6 +206,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          name: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
@@ -213,6 +214,7 @@ export type Database = {
           created_at?: string
           email: string
           id: string
+          name?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
@@ -220,8 +222,81 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          name?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_surveys: {
+        Row: {
+          ai_summary: string | null
+          completed_at: string | null
+          created_at: string | null
+          goals: string | null
+          health: string | null
+          id: string
+          mood: string | null
+          moodmeter_score: number | null
+          productivity: string | null
+          risks: string | null
+          user_id: string
+          voice_input: string | null
+          week_start: string
+          wellbeing: string | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          goals?: string | null
+          health?: string | null
+          id?: string
+          mood?: string | null
+          moodmeter_score?: number | null
+          productivity?: string | null
+          risks?: string | null
+          user_id: string
+          voice_input?: string | null
+          week_start: string
+          wellbeing?: string | null
+        }
+        Update: {
+          ai_summary?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          goals?: string | null
+          health?: string | null
+          id?: string
+          mood?: string | null
+          moodmeter_score?: number | null
+          productivity?: string | null
+          risks?: string | null
+          user_id?: string
+          voice_input?: string | null
+          week_start?: string
+          wellbeing?: string | null
         }
         Relationships: []
       }
@@ -230,9 +305,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "employee"
       check_in_type: "emoji" | "text" | "voice"
       mood_level: "very_happy" | "happy" | "neutral" | "sad" | "very_sad"
       user_role: "employee" | "admin"
@@ -363,6 +445,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "employee"],
       check_in_type: ["emoji", "text", "voice"],
       mood_level: ["very_happy", "happy", "neutral", "sad", "very_sad"],
       user_role: ["employee", "admin"],

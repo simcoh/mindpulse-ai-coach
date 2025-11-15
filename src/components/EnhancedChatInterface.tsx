@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Send, Loader2 } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
 import { MoodSelector } from "./MoodSelector";
+import { WeeklySurvey } from "./WeeklySurvey";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +13,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   isMoodPrompt?: boolean;
+  isWeeklySurvey?: boolean;
 }
 
 interface EnhancedChatInterfaceProps {
@@ -23,12 +25,14 @@ export const EnhancedChatInterface = ({ userId }: EnhancedChatInterfaceProps) =>
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [waitingForMood, setWaitingForMood] = useState(false);
+  const [showWeeklySurvey, setShowWeeklySurvey] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     loadMessages();
     checkDailyCheckIn();
+    checkWeeklySurvey();
   }, [userId]);
 
   useEffect(() => {
@@ -63,6 +67,32 @@ export const EnhancedChatInterface = ({ userId }: EnhancedChatInterfaceProps) =>
         setMessages((prev) => [...prev, moodPrompt]);
         setWaitingForMood(true);
       }, 1000);
+    }
+  };
+
+  const checkWeeklySurvey = async () => {
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+
+    const { data } = await supabase
+      .from("weekly_surveys")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("week_start", weekStartStr)
+      .single();
+
+    if (!data) {
+      setTimeout(() => {
+        const surveyPrompt: Message = {
+          role: "assistant",
+          content: "It's time for your weekly survey! This helps me understand your overall wellbeing.",
+          isWeeklySurvey: true,
+        };
+        setMessages((prev) => [...prev, surveyPrompt]);
+        setShowWeeklySurvey(true);
+      }, 2000);
     }
   };
 
@@ -148,6 +178,65 @@ export const EnhancedChatInterface = ({ userId }: EnhancedChatInterfaceProps) =>
     }
   };
 
+  const handleWeeklySurveySubmit = async (responses: any) => {
+    setShowWeeklySurvey(false);
+
+    const userMessage: Message = {
+      role: "user",
+      content: "Weekly survey completed ✓",
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+
+    // Calculate moodmeter score (0-100)
+    const score = Math.floor(Math.random() * 40) + 60; // Demo: 60-100
+
+    // Generate AI summary
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("chat-coach", {
+        body: {
+          message: `Generate a brief summary of this weekly survey: ${JSON.stringify(responses)}`,
+        },
+      });
+
+      if (error) throw error;
+
+      await supabase.from("weekly_surveys").insert({
+        user_id: userId,
+        week_start: weekStartStr,
+        mood: responses.mood,
+        wellbeing: responses.wellbeing,
+        health: responses.health,
+        productivity: responses.productivity,
+        goals: responses.goals,
+        risks: responses.risks,
+        voice_input: responses.voiceInput,
+        moodmeter_score: score,
+        ai_summary: data.response,
+      });
+
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: "Thank you for completing your weekly survey! Your responses help me provide better support.",
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit survey. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -212,6 +301,11 @@ export const EnhancedChatInterface = ({ userId }: EnhancedChatInterfaceProps) =>
                 <MoodSelector selectedMood={null} onMoodSelect={handleMoodSelect} />
               </div>
             )}
+            {message.isWeeklySurvey && showWeeklySurvey && (
+              <div className="mb-6 ml-11">
+                <WeeklySurvey onSubmit={handleWeeklySurveySubmit} />
+              </div>
+            )}
           </div>
         ))}
         {isLoading && (
@@ -232,9 +326,9 @@ export const EnhancedChatInterface = ({ userId }: EnhancedChatInterfaceProps) =>
             onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             placeholder="Share your thoughts..."
             className="flex-1"
-            disabled={isLoading || waitingForMood}
+            disabled={isLoading || waitingForMood || showWeeklySurvey}
           />
-          <Button onClick={handleSend} disabled={isLoading || !input.trim() || waitingForMood} className="glow-effect">
+          <Button onClick={handleSend} disabled={isLoading || !input.trim() || waitingForMood || showWeeklySurvey}>
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>
