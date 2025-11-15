@@ -52,39 +52,39 @@ export type Database = {
       admin_weekly_surveys: {
         Row: {
           admin_id: string
+          behavior_concerns: string | null
           completed_at: string | null
-          concerns: string | null
-          conflicts: string | null
           created_at: string | null
+          help_needed: string | null
           id: string
-          support_needed: string | null
+          problem_report: string | null
+          survey_feedback: string | null
           team_status: string | null
           week_start: string
-          workload: string | null
         }
         Insert: {
           admin_id: string
+          behavior_concerns?: string | null
           completed_at?: string | null
-          concerns?: string | null
-          conflicts?: string | null
           created_at?: string | null
+          help_needed?: string | null
           id?: string
-          support_needed?: string | null
+          problem_report?: string | null
+          survey_feedback?: string | null
           team_status?: string | null
           week_start: string
-          workload?: string | null
         }
         Update: {
           admin_id?: string
+          behavior_concerns?: string | null
           completed_at?: string | null
-          concerns?: string | null
-          conflicts?: string | null
           created_at?: string | null
+          help_needed?: string | null
           id?: string
-          support_needed?: string | null
+          problem_report?: string | null
+          survey_feedback?: string | null
           team_status?: string | null
           week_start?: string
-          workload?: string | null
         }
         Relationships: []
       }
