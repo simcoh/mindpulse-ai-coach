@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -7,31 +7,96 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { AdminWeeklySurvey } from "@/components/AdminWeeklySurvey";
+import { startOfWeek } from "date-fns";
 
 const AdminChat = () => {
   const [user, setUser] = useState<any>(null);
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
   const [input, setInput] = useState("");
+  const [showWeeklySurvey, setShowWeeklySurvey] = useState(false);
   const navigate = useNavigate();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        initializeAdminChat();
+        initializeAdminChat(session.user.id);
       } else {
         navigate("/auth");
       }
     });
   }, [navigate]);
 
-  const initializeAdminChat = () => {
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, showWeeklySurvey]);
+
+  const initializeAdminChat = async (userId: string) => {
     setMessages([
       {
         role: "assistant",
         content: "Welcome to the Admin portal. How is your team doing this week?",
       },
     ]);
+    
+    await checkWeeklySurvey(userId);
+  };
+
+  const checkWeeklySurvey = async (userId: string) => {
+    const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+      .from('admin_weekly_surveys')
+      .select('*')
+      .eq('admin_id', userId)
+      .eq('week_start', weekStartStr)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking weekly survey:', error);
+      return;
+    }
+
+    if (!data) {
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "It's time for your weekly manager check-in. Please take a moment to fill out the form below."
+        }]);
+        setShowWeeklySurvey(true);
+      }, 1000);
+    }
+  };
+
+  const handleWeeklySurveySubmit = async (responses: any) => {
+    if (!user) return;
+
+    const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+
+    const { error } = await supabase
+      .from('admin_weekly_surveys')
+      .insert({
+        admin_id: user.id,
+        week_start: weekStartStr,
+        ...responses
+      });
+
+    if (error) {
+      console.error('Error saving survey:', error);
+      return;
+    }
+
+    setShowWeeklySurvey(false);
+    setMessages(prev => [...prev, {
+      role: "assistant",
+      content: "Thank you for completing your weekly manager check-in. I've recorded your responses. How else can I assist you today?"
+    }]);
   };
 
   const handleSend = async () => {
@@ -58,9 +123,22 @@ const AdminChat = () => {
       <AppSidebar />
       <main className="flex-1 flex flex-col">
         <ScrollArea className="flex-1 px-4 py-6">
-          {messages.map((message, index) => (
-            <ChatMessage key={index} role={message.role} content={message.content} />
-          ))}
+          <div className="max-w-4xl mx-auto">
+            {messages.map((message, index) => (
+              <ChatMessage key={index} role={message.role} content={message.content} />
+            ))}
+            
+            {showWeeklySurvey && (
+              <div className="mb-4">
+                <AdminWeeklySurvey
+                  onSubmit={handleWeeklySurveySubmit}
+                  onCancel={() => setShowWeeklySurvey(false)}
+                />
+              </div>
+            )}
+            
+            <div ref={scrollRef} />
+          </div>
         </ScrollArea>
 
         <div className="p-4 border-t border-border bg-card">

@@ -49,6 +49,45 @@ export type Database = {
           },
         ]
       }
+      admin_weekly_surveys: {
+        Row: {
+          admin_id: string
+          completed_at: string | null
+          concerns: string | null
+          conflicts: string | null
+          created_at: string | null
+          id: string
+          support_needed: string | null
+          team_status: string | null
+          week_start: string
+          workload: string | null
+        }
+        Insert: {
+          admin_id: string
+          completed_at?: string | null
+          concerns?: string | null
+          conflicts?: string | null
+          created_at?: string | null
+          id?: string
+          support_needed?: string | null
+          team_status?: string | null
+          week_start: string
+          workload?: string | null
+        }
+        Update: {
+          admin_id?: string
+          completed_at?: string | null
+          concerns?: string | null
+          conflicts?: string | null
+          created_at?: string | null
+          id?: string
+          support_needed?: string | null
+          team_status?: string | null
+          week_start?: string
+          workload?: string | null
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
