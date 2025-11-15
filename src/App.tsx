@@ -9,6 +9,8 @@ import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminChat from "./pages/AdminChat";
+import WeeklySurveyPage from "./pages/WeeklySurveyPage";
+import Coach from "./pages/Coach";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/stats" element={<Stats />} />
+          <Route path="/weekly-survey" element={<WeeklySurveyPage />} />
+          <Route path="/coach" element={<Coach />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/chat" element={<AdminChat />} />
